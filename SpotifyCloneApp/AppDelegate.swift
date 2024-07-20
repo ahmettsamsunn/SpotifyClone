@@ -26,8 +26,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        
         window.makeKeyAndVisible()
         self.window = window
-        AuthManager.shared.refreshifneeded { succes in
-            print(succes)
+        Task {
+            do {
+                let success = try await AuthManager.shared.refreshifneeded()
+                    print(success)
+                } catch {
+                print("Error refreshing token: \(error)")
+                    }
         }
         return true
     }

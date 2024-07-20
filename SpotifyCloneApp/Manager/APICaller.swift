@@ -19,6 +19,20 @@ final class APICaller {
     enum APIErrors{
         case failedtogetdata
     }
+    public func getCurrentUserProfile() async throws -> UserProfile{
+        let requst = try await createRequest(with: URL(string: Constants.baseURL), type: .GET)
+        let (data,_) = try await URLSession.shared.data(for: requst)
+        do {
+            let result = try JSONDecoder().decode(UserProfile.self, from: data)
+            return result
+        }catch {
+            throw error
+        }
+       
+   
+    }
+
+   /*
     public func getCurrentUserProfile(completion: @escaping (Result<UserProfile,Error>)->Void){
         createRequest(with: URL(string: Constants.baseURL), type: .GET) { request in
             let task = URLSession.shared.dataTask(with: request) { data, _, error in
@@ -41,23 +55,28 @@ final class APICaller {
             task.resume()
         }
     }
+    */
         enum HTTPMethod : String {
             case GET
             case POST
-        }
-        private func createRequest(with url : URL?,type : HTTPMethod,completion : @escaping(URLRequest)->Void){
-            AuthManager.shared.withValidToken { token in
-                guard let apiurl = url else {
-                    return
-                }
-                var request = URLRequest(url: apiurl)
-                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-                request.httpMethod = type.rawValue
-                request.timeoutInterval = 30
-                completion(request)
             }
-            
+    
+    private func createRequest(with url : URL?,type : HTTPMethod)async throws -> URLRequest{
+        guard let apiurl = url else {
+            throw URLError(.badURL)
         }
+        let token = try await AuthManager.shared.withValidToken()
+
+        var request = URLRequest(url: apiurl)
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = type.rawValue
+        request.timeoutInterval = 30
+        return request
+       
+        
+    }
+       
         
 }
+
 

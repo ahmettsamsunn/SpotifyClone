@@ -29,20 +29,17 @@ class ProfileViewController: UIViewController {
     }
     
     private func fetchdata(){
-        APICaller.shared.getCurrentUserProfile { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let success):
-                    self?.updateui(with: success)
-                case .failure(let failure):
-                    self?.presentGFAlertOnMainThread(title: "Error", message: "Failed to load profile", buttontitle: "Ok")
-                }
-               
+        Task {
+            do {
+                let result = try await APICaller.shared.getCurrentUserProfile()
+                updateui(with: result)
+            }catch{
+                presentGFAlertOnMainThread(title: "Error", message: "Failed to load profile", buttontitle: "Ok")
+                            }
             }
-           
+            
         }
-
-    }
+        
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableview.frame = view.bounds
