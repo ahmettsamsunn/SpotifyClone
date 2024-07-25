@@ -69,7 +69,7 @@ class ProfileViewController: UIViewController {
         imageview.layer.cornerRadius = imagesize/2
         imageview.sd_setImage(with: url)
         tableview.tableHeaderView = headerview
-        print((url))
+        
     }
 }
 extension ProfileViewController : UITableViewDelegate,UITableViewDataSource {

@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Task {
             do {
                 let success = try await AuthManager.shared.refreshifneeded()
-                    print(success)
+                    
                 } catch {
                 print("Error refreshing token: \(error)")
                     }

@@ -14,13 +14,67 @@ final class APICaller {
         
     }
     struct Constants {
-        static let baseURL = "https://api.spotify.com/v1/me"
+        static let baseURL = "https://api.spotify.com/v1"
     }
     enum APIErrors{
         case failedtogetdata
     }
+  
+
+
+   func getfeaturedplaylist() async throws -> FeaturedPlaylist {
+        
+        let request = try await createRequest(with: URL(string: Constants.baseURL + "/browse/featured-playlists") , type: .GET)
+        let (data,_) = try await URLSession.shared.data(for: request)
+        do {
+            let result = try JSONDecoder().decode(FeaturedPlaylist.self, from: data)
+            print(result)
+            return result
+        }catch {
+            throw error
+        }
+    }
+    public func getnewreleases() async throws -> NewReleasesResponse{
+        let request = try await createRequest(with: URL(string: Constants.baseURL + "/browse/new-releases?limit=50"), type: .GET)
+        let (data,_) = try await URLSession.shared.data(for: request)
+        do {
+            let result = try JSONDecoder().decode(NewReleasesResponse.self, from: data)
+          
+            return result
+        }catch{
+            print(error.localizedDescription)
+            throw error
+        }
+        
+    }
+    public func getrecomendedgenres()async throws -> RecommendedGenres{
+        let request = try await createRequest(with: URL(string: Constants.baseURL + "/recommendations/available-genre-seeds"), type: .GET)
+        let (data,_) = try await URLSession.shared.data(for: request)
+        do {
+            let result = try JSONDecoder().decode(RecommendedGenres.self, from: data)
+      
+            return result
+           
+        }catch {
+            throw error
+        }
+
+    }
+    public func getReccomendations(genres : Set<String>) async throws -> RecommendedResponse {
+        let seeds = genres.joined(separator: ",")
+        let request = try await createRequest(with: URL(string: Constants.baseURL + "/recommendations?limit=2&seed_genres=\(seeds)"), type: .GET)
+       
+        let (data,_) = try await URLSession.shared.data(for: request)
+        do {
+            let result = try JSONDecoder().decode(RecommendedResponse.self, from: data)
+            print(result)
+            return result
+        }catch {
+            throw error
+        }
+    }
     public func getCurrentUserProfile() async throws -> UserProfile{
-        let requst = try await createRequest(with: URL(string: Constants.baseURL), type: .GET)
+        let requst = try await createRequest(with: URL(string: Constants.baseURL + "/me"), type: .GET)
         let (data,_) = try await URLSession.shared.data(for: requst)
         do {
             let result = try JSONDecoder().decode(UserProfile.self, from: data)
